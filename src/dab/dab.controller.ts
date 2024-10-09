@@ -28,7 +28,27 @@ export class DabController {
     if (!accountId || !amount || amount <= 0) {
       throw new Error('Invalid account ID or amount');
     }
+    
+    return this.dabService.whitdraw(accountId, amount);
+  }
 
-    return this.dabService.whitdraw(userId, accountId, amount);
+  @UseGuards(JwtAuthGuard)
+  @Post('virement')
+  async virement(@Req() req, @Body() body) {
+    const { accountId, amount, accountIdTo } = body;
+
+    if (!accountId || !amount || amount <= 0) {
+      throw new Error('Invalid account ID or amount');
+    }
+    
+    return this.dabService.virement(accountIdTo, accountId, amount);
+  }
+  
+
+  @Post('cheque-withdraw')
+  async chequeWithdraw(@Req() req, @Body() body) {
+    const amount = req.amount;
+    const accountID = req.accountId;
+    return new Promise(resolve => setTimeout(() => this.dabService.chequeWithdraw(amount, accountID), 10000));
   }
 }

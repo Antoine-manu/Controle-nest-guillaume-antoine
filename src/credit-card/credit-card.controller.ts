@@ -5,12 +5,11 @@ import { CreditCardService } from './credit-card.service';
 export class CreditCardController {
   constructor(private readonly creditCardService: CreditCardService) {}
 
-  // Route POST pour ajouter une carte à un compte
   @Post()
   async addCard(
     @Param('accountId') accountId: number,
-    @Body('userId') userId: number, // Identifiant de l'utilisateur demandant la carte
-    @Body('pinCode') pinCode: string, // Code PIN de 4 chiffres
+    @Body('userId') userId: number,
+    @Body('pinCode') pinCode: string,
   ) {
     return this.creditCardService.addCardToAccount(accountId, userId, pinCode);
   }

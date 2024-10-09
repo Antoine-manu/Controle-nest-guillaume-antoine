@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreditCardService } from '../credit-card/credit-card.service'; // Service des cartes bancaires
+import { CreditCardService } from '../credit-card/credit-card.service'; 
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly creditCardService: CreditCardService, // Utiliser le service des cartes bancaires
+    private readonly creditCardService: CreditCardService,
   ) {}
 
   async validateCreditCard(cardId: number, pinCode: string): Promise<any> {
@@ -24,7 +24,7 @@ export class AuthService {
     console.log(cardId)
     const card = await this.creditCardService.findOne(cardId);
     console.log(card)
-    const user = card.holder; // Associe le user à la carte
+    const user = card.holder; 
 
     const payload = { userId: user.id, cardId: card.id };
     return {

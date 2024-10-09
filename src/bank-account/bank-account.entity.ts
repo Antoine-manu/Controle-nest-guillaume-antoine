@@ -20,6 +20,9 @@ export class BankAccount {
   @Column()
   balance: number;
 
+  @Column()
+  plafond: number;
+
   @Column({ type: 'enum', enum: AccountType })
   type: AccountType;
 

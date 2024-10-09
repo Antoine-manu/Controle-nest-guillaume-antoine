@@ -7,17 +7,17 @@ export class Transaction {
   id: number;
 
   @Column()
-  amount: number; // Montant de la transaction
-
-  @ManyToOne(() => BankAccount, { nullable: false })
-  sourceAccount: BankAccount; // Compte de départ
+  amount: number; 
 
   @ManyToOne(() => BankAccount, { nullable: true })
-  destinationAccount: BankAccount; // Compte d'arrivée (facultatif)
+  sourceAccount: BankAccount; 
+
+  @ManyToOne(() => BankAccount, { nullable: true })
+  destinationAccount: BankAccount; 
 
   @Column()
-  date: Date; // Date de la transaction
+  date: Date; 
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date; // Date de création
+  createdAt: Date;
 }

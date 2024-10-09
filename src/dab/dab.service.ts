@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { BankAccountService } from '../bank-account/bank-account.service'; // Service des comptes bancaires
-import { TransactionService } from '../transaction/transaction.service'; // Service des comptes bancaires
+import { BankAccountService } from '../bank-account/bank-account.service';
+import { TransactionService } from '../transaction/transaction.service';
 import { Transaction } from 'typeorm';
 import { CreditCardService } from 'src/credit-card/credit-card.service';
 
@@ -12,7 +12,6 @@ export class DabService {
     private readonly creditCardService: CreditCardService
   ) {}
 
-  // Méthode pour récupérer les soldes des comptes de l'utilisateur
   async getAccountBalances(userId: number): Promise<any> {
     const accounts = await this.getAccounts(userId);
     const accountsReturn = []
@@ -22,12 +21,27 @@ export class DabService {
     return accountsReturn
   }
 
-  async whitdraw(userId: number, accountId: number, amount: number): Promise<any> {
-    return await this.transactionService.createTransaction(amount,accountId)
+  async whitdraw(accountId: number, amount: number): Promise<any> {
+    const account = await this.bankAccountService.findAccountById(accountId)
+    const totalToday = await this.bankAccountService.getTotalWithdrawalsForToday()
+    if(totalToday + amount < account.plafond){
+      return await this.transactionService.createTransaction(amount,accountId)
+    }
+    else {
+      throw new Error('Plafond dépassé');
+    }
+  }
+
+  async virement(accountIdTo: number, accountId: number, amount: number): Promise<any> {
+    return await this.transactionService.createTransaction(amount,accountId, accountIdTo)
   }
 
   async getAccounts(userId: number): Promise<any> {
-    return this.bankAccountService.findAllForUser(userId); // On récupère les comptes et leurs soldes
+    return this.bankAccountService.findAllForUser(userId);
+  }
+
+  async chequeWithdraw(amount: number, accountID: number): Promise<any> {
+    return this.transactionService.createWithdraw(amount, accountID)
   }
 
   async getTenLastOperations(cardId): Promise<Transaction[]>{

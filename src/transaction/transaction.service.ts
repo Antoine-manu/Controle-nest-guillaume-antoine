@@ -56,6 +56,32 @@ export class TransactionService {
     return this.transactionRepository.save(transaction);
   }
 
+  async createWithdraw(
+    amount: number,
+    destinationAccountId?: number,
+  ): Promise<Transaction> {
+    
+
+    let destinationAccount: BankAccount | undefined;
+    destinationAccount = await this.bankAccountRepository.findOne({
+        where: { id: destinationAccountId },
+      });
+
+      if (!destinationAccount) {
+        throw new Error('Destination account not found');
+      }
+
+      destinationAccount.balance += amount;
+    this.bankAccountRepository.save(destinationAccount);
+    const transaction = this.transactionRepository.create({
+      amount,
+      destinationAccount,
+      date: new Date(),
+    });
+
+    return this.transactionRepository.save(transaction);
+  }
+
   async findAll(): Promise<Transaction[]> {
     return this.transactionRepository.find({
       relations: ['sourceAccount', 'destinationAccount'], 

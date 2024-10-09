@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Transaction } from 'typeorm';
 import { BankAccount, AccountType } from './bank-account.entity';
 import { User } from '../user/user.entity';
 import { UpdateBankAccountDto } from 'src/dto/update-bank-account.dto';
@@ -12,6 +12,8 @@ export class BankAccountService {
     private bankAccountRepository: Repository<BankAccount>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(User)
+    private transactionRepository: Repository<Transaction>,
   ) {}
 
   async create(
@@ -60,7 +62,7 @@ export class BankAccountService {
   async findAccountById(accountId: number): Promise<BankAccount> {
     const account = await this.bankAccountRepository.findOne({
       where: { id: accountId },
-      relations: ['users', 'creditCards'], // Inclure les utilisateurs et cartes bancaires si nécessaire
+      relations: ['users', 'creditCards'],
     });
 
     if (!account) {
@@ -74,6 +76,24 @@ export class BankAccountService {
     const account = await this.findAccountById(accountId);
     Object.assign(account, updateBankAccountDto);
     return this.bankAccountRepository.save(account);
+  }
+
+  async getTotalWithdrawalsForToday(): Promise<number> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const result = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .select('SUM(transaction.amount)', 'total')
+      .where('transaction.destinationAccount IS NULL') 
+      .andWhere('transaction.date >= :today', { today }) 
+      .andWhere('transaction.date < :tomorrow', { tomorrow })
+      .getRawOne();
+
+    return result.total ? parseFloat(result.total) : 0;
   }
   
 }

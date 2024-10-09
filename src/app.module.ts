@@ -15,7 +15,7 @@ import { TransactionModule } from './transaction/transaction.module';
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
-      port: 3306,
+      port: 8889,
       username: '5iw-nest',
       password: 'root',
       database: '5iw-controle',

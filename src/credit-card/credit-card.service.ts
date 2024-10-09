@@ -14,7 +14,6 @@ export class CreditCardService {
     private bankAccountRepository: Repository<BankAccount>,
   ) {}
 
-  // Méthode pour ajouter une carte bancaire à un compte
   async addCardToAccount(accountId: number, userId: number, pinCode: string): Promise<CreditCard> {
     const bankAccount = await this.bankAccountRepository.findOne({
       where: { id: accountId },
@@ -25,25 +24,21 @@ export class CreditCardService {
       throw new BadRequestException('Compte bancaire non trouvé.');
     }
 
-    // Règle : Seuls les comptes courants, pro et commun peuvent avoir une carte bleue
     if (bankAccount.type === 'Livret A') {
       throw new BadRequestException('Les livrets A ne peuvent pas être associés à une carte bleue.');
     }
 
-    // Règle pour les comptes communs : maximum de deux cartes bleues
     if (bankAccount.type === 'Commun') {
       if (bankAccount.creditCards.length >= 2) {
         throw new BadRequestException('Le compte commun a déjà deux cartes bleues.');
       }
 
-      // Vérifier que l'utilisateur qui demande la carte est un des titulaires
       const isUserHolder = bankAccount.users.some((user) => user.id === userId);
       if (!isUserHolder) {
         throw new BadRequestException("L'utilisateur n'est pas titulaire de ce compte commun.");
       }
     }
 
-    // Créer et associer la carte bancaire
     const creditCard = this.creditCardRepository.create({
       cardNumber: this.generateCardNumber(),
       pinCode: pinCode,
