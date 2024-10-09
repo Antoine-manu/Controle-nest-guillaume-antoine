@@ -6,7 +6,11 @@ import { CreditCardService } from 'src/credit-card/credit-card.service';
 
 @Injectable()
 export class DabService {
-  constructor(private readonly bankAccountService: BankAccountService, private readonly transactionService: TransactionService, private readonly creditCardService: CreditCardService) {}
+  constructor(
+    private readonly bankAccountService: BankAccountService, 
+    private readonly transactionService: TransactionService, 
+    private readonly creditCardService: CreditCardService
+  ) {}
 
   // Méthode pour récupérer les soldes des comptes de l'utilisateur
   async getAccountBalances(userId: number): Promise<any> {
@@ -16,6 +20,10 @@ export class DabService {
       accountsReturn.push({account : account.type, solde: account.balance})
     })
     return accountsReturn
+  }
+
+  async whitdraw(userId: number, accountId: number, amount: number): Promise<any> {
+    return await this.transactionService.createTransaction(amount,accountId)
   }
 
   async getAccounts(userId: number): Promise<any> {
