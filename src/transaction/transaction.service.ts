@@ -58,7 +58,18 @@ export class TransactionService {
 
   async findAll(): Promise<Transaction[]> {
     return this.transactionRepository.find({
-      relations: ['sourceAccount', 'destinationAccount'], // Inclure les relations
+      relations: ['sourceAccount', 'destinationAccount'], 
+    });
+  }
+
+  async findLastTenByAccount(accountId: number): Promise<Transaction[]> {
+    return this.transactionRepository.find({
+      where: [{ sourceAccount: { id: accountId } }, { destinationAccount: { id: accountId } }],
+      order: {
+        createdAt: 'DESC', 
+      },
+      relations: ['sourceAccount', 'destinationAccount'],
+      take: 10, 
     });
   }
 }

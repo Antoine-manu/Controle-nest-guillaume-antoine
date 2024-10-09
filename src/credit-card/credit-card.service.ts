@@ -69,7 +69,7 @@ export class CreditCardService {
   async findOne(id: number): Promise<CreditCard> {
     return this.creditCardRepository.findOne({
       where: { id },
-      relations: ['holder'],
+      relations: ['holder', 'bankAccount'],
     });
   }
 }
