@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Unique } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { User } from '../user/user.entity';
 
 export enum AccountType {
@@ -9,7 +9,6 @@ export enum AccountType {
 }
 
 @Entity()
-@Unique(['user', 'type'])
 export class BankAccount {
   @PrimaryGeneratedColumn()
   id: number;
@@ -20,6 +19,11 @@ export class BankAccount {
   @Column({ type: 'enum', enum: AccountType })
   type: AccountType;
 
-  @ManyToOne(() => User, (user) => user.bankAccounts, { onDelete: 'CASCADE' })
-  user: User;
+  @ManyToMany(() => User, (user) => user.bankAccounts)
+  @JoinTable({
+    name: 'user_bank_accounts',
+    joinColumn: { name: 'bank_account_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
+  })
+  users: User[];
 }

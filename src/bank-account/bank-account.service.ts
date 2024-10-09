@@ -9,31 +9,58 @@ export class BankAccountService {
   constructor(
     @InjectRepository(BankAccount)
     private bankAccountRepository: Repository<BankAccount>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  async create(user: User, accountNumber: string, type: AccountType): Promise<BankAccount> {
-    const existingAccount = await this.bankAccountRepository.findOne({
-      where: { user, type },
-    });
-
-    if (existingAccount) {
-      throw new Error(`L'utilisateur a déjà un compte de type ${type}.`);
+  async createSharedAccount(
+    accountNumber: string,
+    userIds: number[],
+  ): Promise<BankAccount> {
+    const users = await this.userRepository.findByIds(userIds);
+    if (users.length !== 2) {
+      throw new Error('A shared account must be associated with exactly two users.');
     }
 
-    const account = this.bankAccountRepository.create({
+    const newAccount = this.bankAccountRepository.create({
       accountNumber,
-      type,
-      user,
+      type: AccountType.COMMUN,
+      users,
     });
 
-    return this.bankAccountRepository.save(account);
+    return this.bankAccountRepository.save(newAccount);
   }
 
-  findAllForUser(user: User): Promise<BankAccount[]> {
-    return this.bankAccountRepository.find({ where: { user } });
+  async create(
+    userIds: number[],
+    accountNumber: string,
+    type: AccountType,
+  ): Promise<BankAccount> {
+    const users = await this.userRepository.findByIds(userIds);
+    if (type === AccountType.COMMUN && users.length !== 2) {
+      throw new Error('A shared account must be associated with exactly two users.');
+    }
+  
+    const newAccount = this.bankAccountRepository.create({
+      accountNumber,
+      type,
+      users,
+    });
+  
+    return this.bankAccountRepository.save(newAccount);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.bankAccountRepository.delete(id);
+  async findAllForUser(userId: number): Promise<BankAccount[]> {
+    return this.bankAccountRepository.find({
+      where: { users: { id: userId } },
+      relations: ['users'],
+    });
   }
+
+  async remove(accountId: number): Promise<void> {
+    await this.bankAccountRepository.delete(accountId);
+  }
+  
+  
+  
 }

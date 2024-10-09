@@ -8,7 +8,7 @@ import { BankAccountModule } from './bank-account/bank-account.module';
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
-      port: 8889,
+      port: 3306,
       username: '5iw-nest',
       password: 'root',
       database: '5iw-controle',

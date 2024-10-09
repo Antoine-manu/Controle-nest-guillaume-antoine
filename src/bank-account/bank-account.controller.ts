@@ -3,7 +3,7 @@ import { BankAccountService } from './bank-account.service';
 import { UserService } from '../user/user.service';
 import { BankAccount, AccountType } from './bank-account.entity';
 
-@Controller('users/:userId/accounts')
+@Controller('accounts')
 export class BankAccountController {
   constructor(
     private readonly bankAccountService: BankAccountService,
@@ -12,30 +12,20 @@ export class BankAccountController {
 
   @Post()
   async create(
-    @Param('userId') userId: string,
+    @Body('userIds') userIds: number[],
     @Body('accountNumber') accountNumber: string,
     @Body('type') type: AccountType,
-  ): Promise<BankAccount> {
-    const user = await this.userService.findOne(+userId);
-    if (!user) {
-      throw new Error('Utilisateur non trouvé.');
-    }
-
-    return this.bankAccountService.create(user, accountNumber, type);
+  ) {
+    return this.bankAccountService.create(userIds, accountNumber, type);
   }
 
-  @Get()
-  async findAllForUser(@Param('userId') userId: string): Promise<BankAccount[]> {
-    const user = await this.userService.findOne(+userId);
-    if (!user) {
-      throw new Error('Utilisateur non trouvé.');
-    }
+@Get(':userId')
+async findAllForUser(@Param('userId') userId: number) {
+  return this.bankAccountService.findAllForUser(userId);
+}
 
-    return this.bankAccountService.findAllForUser(user);
-  }
-
-  @Delete(':accountId')
-  async remove(@Param('accountId') accountId: string): Promise<void> {
-    await this.bankAccountService.remove(+accountId);
-  }
+@Delete(':accountId')
+async remove(@Param('accountId') accountId: number) {
+  await this.bankAccountService.remove(+accountId);
+}
 }
