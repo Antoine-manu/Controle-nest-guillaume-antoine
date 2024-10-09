@@ -13,24 +13,6 @@ export class BankAccountService {
     private userRepository: Repository<User>,
   ) {}
 
-  async createSharedAccount(
-    accountNumber: string,
-    userIds: number[],
-  ): Promise<BankAccount> {
-    const users = await this.userRepository.findByIds(userIds);
-    if (users.length !== 2) {
-      throw new Error('A shared account must be associated with exactly two users.');
-    }
-
-    const newAccount = this.bankAccountRepository.create({
-      accountNumber,
-      type: AccountType.COMMUN,
-      users,
-    });
-
-    return this.bankAccountRepository.save(newAccount);
-  }
-
   async create(
     userIds: number[],
     accountNumber: string,
@@ -38,9 +20,13 @@ export class BankAccountService {
   ): Promise<BankAccount> {
     const users = await this.userRepository.findByIds(userIds);
     if (type === AccountType.COMMUN && users.length !== 2) {
-      throw new Error('A shared account must be associated with exactly two users.');
+      throw new Error('Un compte commun doit etre créer pour deux utilisateurs');
     }
   
+    if (type !== AccountType.COMMUN && users.length !== 1) {
+        throw new Error('Un seul utilisateur peut etre associé a ce type de compte');
+    }
+
     const newAccount = this.bankAccountRepository.create({
       accountNumber,
       type,
@@ -58,7 +44,16 @@ export class BankAccountService {
   }
 
   async remove(accountId: number): Promise<void> {
-    await this.bankAccountRepository.delete(accountId);
+    const account = await this.bankAccountRepository.findOne({
+        where: { id: accountId },
+        relations: ['users'], 
+      });
+  
+      if (!account) {
+        throw new Error(`Compte bancaire avec l'id ${accountId} introuvable`);
+      }
+  
+      await this.bankAccountRepository.remove(account);
   }
   
   
