@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { User } from '../user/user.entity';
+import { CreditCard } from 'src/credit-card/credit-card.entity';
 
 export enum AccountType {
   COURANT = 'Courant',
@@ -16,6 +17,9 @@ export class BankAccount {
   @Column({ length: 16 })
   accountNumber: string;
 
+  @Column()
+  balance: number;
+
   @Column({ type: 'enum', enum: AccountType })
   type: AccountType;
 
@@ -26,4 +30,7 @@ export class BankAccount {
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   users: User[];
+
+  @OneToMany(() => CreditCard, (creditCard) => creditCard.bankAccount)
+  creditCards: CreditCard[];
 }

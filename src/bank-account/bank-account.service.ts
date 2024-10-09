@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BankAccount, AccountType } from './bank-account.entity';
 import { User } from '../user/user.entity';
+import { UpdateBankAccountDto } from 'src/dto/update-bank-account.dto';
 
 @Injectable()
 export class BankAccountService {
@@ -46,7 +47,7 @@ export class BankAccountService {
   async remove(accountId: number): Promise<void> {
     const account = await this.bankAccountRepository.findOne({
         where: { id: accountId },
-        relations: ['users'], 
+        relations: ['users', 'cards'], 
       });
   
       if (!account) {
@@ -56,6 +57,23 @@ export class BankAccountService {
       await this.bankAccountRepository.remove(account);
   }
   
-  
+  async findAccountById(accountId: number): Promise<BankAccount> {
+    const account = await this.bankAccountRepository.findOne({
+      where: { id: accountId },
+      relations: ['users', 'creditCards'], // Inclure les utilisateurs et cartes bancaires si nécessaire
+    });
+
+    if (!account) {
+      throw new Error(`Compte bancaire avec l'ID ${accountId} non trouvé`);
+    }
+
+    return account;
+  }
+
+  async updateAccount(accountId: number, updateBankAccountDto: UpdateBankAccountDto): Promise<BankAccount> {
+    const account = await this.findAccountById(accountId);
+    Object.assign(account, updateBankAccountDto);
+    return this.bankAccountRepository.save(account);
+  }
   
 }
