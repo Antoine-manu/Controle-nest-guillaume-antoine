@@ -7,8 +7,8 @@ import { DabService } from './dab/dab.service';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 import { DabModule } from './dab/dab.module';
-import { AuthController } from './auth/auth.controller';
-import { DabController } from './dab/dab.controller';
+import { TransactionService } from './transaction/transaction.service';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -27,6 +27,7 @@ import { DabController } from './dab/dab.controller';
     CreditCardModule,
     AuthModule,
     DabModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}
