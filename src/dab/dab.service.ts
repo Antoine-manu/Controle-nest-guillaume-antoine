@@ -21,7 +21,7 @@ export class DabService {
     return accountsReturn
   }
 
-  async whitdraw(accountId: number, amount: number): Promise<any> {
+  async withdraw(accountId: number, amount: number): Promise<any> {
     const account = await this.bankAccountService.findAccountById(accountId)
     const totalToday = await this.bankAccountService.getTotalWithdrawalsForToday()
     if(totalToday + amount < account.plafond){
