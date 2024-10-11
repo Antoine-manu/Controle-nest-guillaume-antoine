@@ -29,7 +29,7 @@ export class DabController {
       throw new Error('Invalid account ID or amount');
     }
     
-    return this.dabService.whitdraw(accountId, amount);
+    return this.dabService.withdraw(accountId, amount);
   }
 
   @UseGuards(JwtAuthGuard)
